@@ -121,11 +121,13 @@ const colors = {
   canvas.addEventListener("mouseup", showUnveiled);
 
   let touchStartDelayTimeout: NodeJS.Timeout;
-  canvas.addEventListener("touchstart", () => {
+  canvas.addEventListener("touchstart", (e) => {
     if (touchStartDelayTimeout !== undefined) {
       clearTimeout(touchStartDelayTimeout);
     }
-    touchStartDelayTimeout = setTimeout(showOriginal, 250);
+    if (e.touches.length === 1) {
+      touchStartDelayTimeout = setTimeout(showOriginal, 250);
+    }
   });
   canvas.addEventListener("touchend", () => {
     showUnveiled();
