@@ -110,9 +110,7 @@ const colors = {
     if (sliderInputTimeout !== undefined) {
       clearTimeout(sliderInputTimeout);
     }
-    sliderInputTimeout = setTimeout(() => {
-      update();
-    }, 100);
+    sliderInputTimeout = setTimeout(update, 100);
   });
   update();
 
@@ -127,9 +125,7 @@ const colors = {
     if (touchStartDelayTimeout !== undefined) {
       clearTimeout(touchStartDelayTimeout);
     }
-    touchStartDelayTimeout = setTimeout(() => {
-      showOriginal();
-    }, 250);
+    touchStartDelayTimeout = setTimeout(showOriginal, 250);
   });
   canvas.addEventListener("touchend", () => {
     showUnveiled();
