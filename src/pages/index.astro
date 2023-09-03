@@ -129,6 +129,10 @@ const colors = {
       touchStartDelayTimeout = setTimeout(showOriginal, 250);
     }
   });
+  canvas.addEventListener("touchmove", () => {
+    showUnveiled();
+    clearTimeout(touchStartDelayTimeout);
+  });
   canvas.addEventListener("touchend", () => {
     showUnveiled();
     clearTimeout(touchStartDelayTimeout);
