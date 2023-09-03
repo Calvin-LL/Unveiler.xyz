@@ -1,0 +1,68 @@
+---
+import type { HexColor } from "../types/CssColor";
+import Button from "./Button.astro";
+
+interface Props {
+  darkTextColor: HexColor;
+}
+
+const { darkTextColor } = Astro.props;
+---
+
+<div id="file-upload">
+  <Button
+    class="select-screenshot"
+    lightShadowColor="#e4f6fe"
+    lightGradientColor="#1E88E5"
+    lightTextColor={darkTextColor}
+    lightColorDifference={0.15}
+    darkShadowColor="#07285a"
+    darkGradientColor="#1E88E5"
+    darkTextColor={darkTextColor}
+    darkColorDifference={0.9}
+    padding
+    small
+  >
+    Select Screenshot
+  </Button>
+  <input type="file" accept="image/*" />
+</div>
+
+<script>
+  const buttons = document.querySelectorAll(
+    ".select-screenshot" // there's another one in Controlls
+  ) as NodeListOf<HTMLButtonElement>;
+  const input = document.querySelector(
+    "#file-upload > input"
+  ) as HTMLInputElement;
+
+  for (const button of buttons) {
+    button.addEventListener("click", () => {
+      input.click();
+    });
+  }
+</script>
+
+<style lang="scss">
+  #file-upload {
+    position: relative;
+
+    width: 100lvw;
+    height: 100svh;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    & > input {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+
+      opacity: 0;
+    }
+  }
+</style>

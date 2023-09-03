@@ -1,0 +1,134 @@
+---
+import assert from "node:assert";
+import darkCorrect from "../assets/correct/dark.png";
+import lightCorrect from "../assets/correct/light.png";
+import darkResult from "../assets/examples/dark-result.png";
+import darkExample from "../assets/examples/dark.png";
+import lightResult from "../assets/examples/light-result.png";
+import lightExample from "../assets/examples/light.png";
+import { getImage2 } from "../helpers";
+
+const {
+  src: darkSrc,
+  attributes: darkAttributes,
+  aspectRatio: darkAspectRatio,
+} = await getImage2({
+  src: darkExample,
+});
+const {
+  src: lightSrc,
+  attributes: lightAttributes,
+  aspectRatio: lightAspectRatio,
+} = await getImage2({
+  src: lightExample,
+});
+const {
+  src: darkResultSrc,
+  attributes: darkResultAttributes,
+  aspectRatio: darkResultAspectRatio,
+} = await getImage2({ src: darkResult });
+const {
+  src: lightResultSrc,
+  attributes: lightResultAttributes,
+  aspectRatio: lightResultAspectRatio,
+} = await getImage2({ src: lightResult });
+
+assert.deepStrictEqual(lightAttributes, darkAttributes);
+assert.deepStrictEqual(lightResultAttributes, darkResultAttributes);
+assert.strictEqual(lightAspectRatio, darkAspectRatio);
+assert.strictEqual(lightResultAspectRatio, darkResultAspectRatio);
+
+const {
+  src: darkCorrectSrc,
+  attributes: darkCorrectAttributes,
+  aspectRatio: darkCorrectAspectRatio,
+} = await getImage2({ src: darkCorrect });
+const {
+  src: lightCorrectSrc,
+  attributes: lightCorrectAttributes,
+  aspectRatio: lightCorrectAspectRatio,
+} = await getImage2({ src: lightCorrect });
+
+assert.deepStrictEqual(lightCorrectAttributes, darkCorrectAttributes);
+assert.strictEqual(lightCorrectAspectRatio, darkCorrectAspectRatio);
+---
+
+<div class="description">
+  <h2>What is this tool for?</h2>
+  <p>
+    This tool reveals the censored text poorly hidden with transparent brush
+    tools like the highlighter tool in iPhone's Markup feature.
+  </p>
+
+  <div class="side-by-side">
+    <picture>
+      <source srcset={darkSrc} media="(prefers-color-scheme: dark)" />
+      <img
+        src={lightSrc}
+        style={{ aspectRatio: lightAspectRatio }}
+        {...lightAttributes}
+      />
+    </picture>
+     ➡️
+    <picture>
+      <source srcset={darkResultSrc} media="(prefers-color-scheme: dark)" />
+      <img
+        src={lightResultSrc}
+        style={{ aspectRatio: lightResultAspectRatio }}
+        {...lightResultAttributes}
+      />
+    </picture>
+  </div>
+
+  <h2>How do I censor text properly?</h2>
+  <p>Use the pen tool instead.</p>
+  <div class="side-by-side">
+    <picture class="small">
+      <source srcset={darkCorrectSrc} media="(prefers-color-scheme: dark)" />
+      <img
+        src={lightCorrectSrc}
+        style={{ aspectRatio: lightCorrectAspectRatio }}
+        {...lightCorrectAttributes}
+      />
+    </picture>
+  </div>
+  <p>
+    Or use <a
+      href="https://everestpipkin.github.io/image-scrubber/"
+      target="_blank"
+      rel="noopener noreferrer">Image Scrubber</a
+    >.
+  </p>
+
+  <h2>Why did you make this?</h2>
+  <p>
+    I want to bring awareness to the fact that the highlighter tool like the one
+    in iPhone's Markup feature is not a good way to censor text.
+  </p>
+</div>
+
+<style>
+  div.description {
+    padding: 20px;
+
+    max-width: 500px;
+    margin: auto;
+  }
+
+  div.side-by-side {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+  }
+
+  img {
+    width: 100%;
+    height: auto;
+  }
+
+  picture.small {
+    width: 50%;
+    height: auto;
+  }
+</style>

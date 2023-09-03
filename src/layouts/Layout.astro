@@ -1,0 +1,147 @@
+---
+import type { HexColor } from "../types/CssColor";
+
+interface Props {
+  title: string;
+
+  lightBackgroundColor: HexColor;
+  darkBackgroundColor: HexColor;
+
+  lightTextColor: HexColor;
+  darkTextColor: HexColor;
+}
+
+const {
+  title,
+  lightBackgroundColor,
+  darkBackgroundColor,
+  lightTextColor,
+  darkTextColor,
+} = Astro.props;
+
+const lightLinkColor = "#1565C0";
+const darkLinkColor = "#42A5F5";
+const lightVisitedLinkColor = "#5E35B1";
+const darkVisitedLinkColor = "#B39DDB";
+
+const backgroundColorStyleString = `
+:root {
+  --lightBackgroundColor: ${lightBackgroundColor};
+  --darkBackgroundColor: ${darkBackgroundColor};
+
+  --lightTextColor: ${lightTextColor};
+  --darkTextColor: ${darkTextColor};
+
+  --backgroundColor: ${lightBackgroundColor};
+  --textColor: ${lightTextColor};
+
+  --linkColor: ${lightLinkColor};
+  --visitedLinkColor: ${lightVisitedLinkColor};
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --backgroundColor: ${darkBackgroundColor};
+    --textColor: ${darkTextColor};
+
+    --linkColor: ${darkLinkColor};
+    --visitedLinkColor: ${darkVisitedLinkColor};
+  }
+}
+`.trim();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <style set:html={backgroundColorStyleString}></style>
+
+    <meta charset="UTF-8" />
+    <meta
+      name="description"
+      content="A tool to show censored/blacked out text in screenshots"
+    />
+    <meta property="og:title" content={title} />
+    <meta
+      property="og:description"
+      content="A tool to show censored/blacked out text in screenshots"
+    />
+    <meta property="og:url" content="https://Unveiler.xyz" />
+    <meta property="og:image" content="https://Unveiler.xyz/open-graph.png" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://Unveiler.xyz/open-graph.png" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <meta name="theme-color" content="#ecf0f3" />
+    <meta
+      name="theme-color"
+      content="#02192b"
+      media="(prefers-color-scheme: dark)"
+    />
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="mask-icon" href="/mask-icon.svg" color="#000000" />
+    <link
+      rel="mask-icon"
+      href="/mask-icon.svg"
+      color="#ecf0f3"
+      media="(prefers-color-scheme: dark)"
+    />
+
+    <title>{title}</title>
+  </head>
+  <body ontouchstart="">
+    <slot />
+  </body>
+</html>
+
+<style lang="scss" is:global>
+  @use "inter-ui/default" with (
+    $inter-font-display: block,
+    $inter-font-path: "inter-ui/Inter (web hinted latin)"
+  );
+  @use "inter-ui/variable" with (
+    $inter-font-display: block,
+    $inter-font-path: "inter-ui/Inter (web latin)"
+  );
+
+  @include default.all;
+  @include variable.default;
+
+  html {
+    font-family: "Inter", system-ui, sans-serif;
+    background-color: var(--backgroundColor);
+    color: var(--textColor);
+
+    @supports (font-variation-settings: normal) {
+      font-family: "Inter var", system-ui, sans-serif;
+    }
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  a {
+    color: var(--linkColor);
+
+    &:visited {
+      color: var(--visitedLinkColor);
+    }
+  }
+
+  input,
+  textarea,
+  button,
+  select,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+</style>

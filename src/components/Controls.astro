@@ -1,0 +1,89 @@
+---
+import type { HexColor } from "../types/CssColor";
+import Button from "./Button.astro";
+import Slider from "./Slider.astro";
+
+interface Props {
+  lightBackgroundColor: HexColor;
+  darkBackgroundColor: HexColor;
+
+  lightTextColor: HexColor;
+  darkTextColor: HexColor;
+}
+
+const {
+  lightBackgroundColor,
+  darkBackgroundColor,
+
+  lightTextColor,
+  darkTextColor,
+} = Astro.props;
+---
+
+<div id="controls">
+  <Slider label="Strength" min={0} max={255 * 2} step={1} value={128} />
+  <Button
+    class="show-original"
+    lightShadowColor={lightBackgroundColor}
+    lightGradientColor={lightBackgroundColor}
+    lightTextColor={lightTextColor}
+    lightColorDifference={0.15}
+    darkShadowColor={darkBackgroundColor}
+    darkGradientColor={darkBackgroundColor}
+    darkTextColor={darkTextColor}
+    darkColorDifference={0.9}
+    padding
+    small
+  >
+    Show Original
+  </Button>
+  <Button
+    class="show-unveiled"
+    lightShadowColor={lightBackgroundColor}
+    lightGradientColor={lightBackgroundColor}
+    lightTextColor={lightTextColor}
+    lightColorDifference={0.15}
+    darkShadowColor={darkBackgroundColor}
+    darkGradientColor={darkBackgroundColor}
+    darkTextColor={darkTextColor}
+    darkColorDifference={0.9}
+    padding
+    small
+  >
+    Show Unveiled
+  </Button>
+  <Button
+    class="select-screenshot"
+    lightShadowColor="#e4f6fe"
+    lightGradientColor="#1E88E5"
+    lightTextColor={darkTextColor}
+    lightColorDifference={0.15}
+    darkShadowColor="#07285a"
+    darkGradientColor="#1E88E5"
+    darkTextColor={darkTextColor}
+    darkColorDifference={0.9}
+    padding
+    small
+  >
+    Select Screenshot
+  </Button>
+</div>
+
+<style>
+  #controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+
+    padding: 20px;
+
+    max-width: 500px;
+    margin: auto;
+
+    & > button {
+      width: 100%;
+    }
+  }
+</style>

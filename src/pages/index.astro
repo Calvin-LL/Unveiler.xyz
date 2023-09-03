@@ -1,0 +1,331 @@
+---
+import Canvas from "../components/Canvas.astro";
+import Controls from "../components/Controls.astro";
+import Description from "../components/Description.astro";
+import FileUpload from "../components/FileUpload.astro";
+import Footer from "../components/Footer.astro";
+import LargeLogo from "../components/icons/LargeLogo.astro";
+import { colorLuminance } from "../helpers";
+import Layout from "../layouts/Layout.astro";
+
+const lightBackgroundColor = "#ecf0f3";
+const darkBackgroundColor = "#02192b";
+
+const lightTextColor = "#081B2D";
+const darkTextColor = "#F4F9FD";
+
+// light theme
+const lightColorDifference = 0.15;
+const darkLightShadowColor = colorLuminance(
+  lightBackgroundColor,
+  lightColorDifference * -1
+);
+const lightLightShadowColor = colorLuminance(
+  lightBackgroundColor,
+  lightColorDifference
+);
+
+// dark theme
+const darkColorDifference = 0.9;
+const darkDarkShadowColor = colorLuminance(
+  darkBackgroundColor,
+  darkColorDifference * -1
+);
+const lightDarkShadowColor = colorLuminance(
+  darkBackgroundColor,
+  darkColorDifference
+);
+const colors = {
+  lightBackgroundColor,
+  darkBackgroundColor,
+  lightTextColor,
+  darkTextColor,
+} as const;
+---
+
+<Layout title="Unveiler" {...colors}>
+  <main>
+    <header>
+      <LargeLogo />
+    </header>
+    <section>
+      <FileUpload darkTextColor={darkTextColor} />
+      <Canvas />
+      <Controls {...colors} />
+    </section>
+    <section>
+      <Description />
+    </section>
+    <footer>
+      <Footer />
+    </footer>
+  </main>
+</Layout>
+
+<script>
+  const controls = document.querySelector("#controls") as HTMLDivElement;
+  const fileUpload = document.querySelector("#file-upload") as HTMLDivElement;
+  const upload = fileUpload.querySelector(
+    'input[type="file"]'
+  ) as HTMLInputElement;
+  const canvasContainer = document.querySelector(
+    "#canvas-container"
+  ) as HTMLDivElement;
+  const canvas = canvasContainer.querySelector("canvas") as HTMLCanvasElement;
+  const slider = controls.querySelector(
+    "div.slider > input[type='range']"
+  ) as HTMLInputElement;
+  const showOriginalButton = controls.querySelector(
+    "button.show-original"
+  ) as HTMLButtonElement;
+  const showUnveiledButton = controls.querySelector(
+    "button.show-unveiled"
+  ) as HTMLButtonElement;
+
+  showUnveiledButton.style.display = "none";
+
+  upload.addEventListener("change", async (e) => {
+    const file = (e.target as HTMLInputElement).files?.[0]!;
+    const bitmap = await createImageBitmap(file);
+
+    canvas.width = bitmap.width;
+    canvas.height = bitmap.height;
+
+    const ctx = canvas.getContext("2d")!;
+    ctx.drawImage(bitmap, 0, 0);
+
+    globalThis.canvasContext = ctx;
+    globalThis.originalImageData = ctx.getImageData(
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+
+    update();
+  });
+
+  let sliderInputTimeout: NodeJS.Timeout;
+  slider.addEventListener("input", () => {
+    if (sliderInputTimeout !== undefined) {
+      clearTimeout(sliderInputTimeout);
+    }
+    sliderInputTimeout = setTimeout(() => {
+      update();
+    }, 100);
+  });
+  update();
+
+  showOriginalButton.addEventListener("click", showOriginal);
+  showUnveiledButton.addEventListener("click", showUnveiled);
+
+  canvas.addEventListener("mousedown", showOriginal);
+  canvas.addEventListener("mouseup", showUnveiled);
+
+  let touchStartDelayTimeout: NodeJS.Timeout;
+  canvas.addEventListener("touchstart", (e) => {
+    if (touchStartDelayTimeout !== undefined) {
+      clearTimeout(touchStartDelayTimeout);
+    }
+    touchStartDelayTimeout = setTimeout(() => {
+      showOriginal();
+    }, 250);
+  });
+  canvas.addEventListener("touchend", () => {
+    showUnveiled();
+    clearTimeout(touchStartDelayTimeout);
+  });
+  canvas.addEventListener("touchcancel", () => {
+    showUnveiled();
+    clearTimeout(touchStartDelayTimeout);
+  });
+
+  function showOriginal() {
+    if (showOriginalButton.style.display === "none") {
+      return;
+    }
+
+    const ctx = globalThis.canvasContext;
+    const imageData = globalThis.originalImageData;
+    if (!imageData) {
+      return;
+    }
+    ctx.putImageData(imageData, 0, 0);
+
+    showOriginalButton.style.display = "none";
+    showUnveiledButton.style.display = "";
+  }
+
+  function showUnveiled() {
+    if (showUnveiledButton.style.display === "none") {
+      return;
+    }
+
+    update();
+
+    showOriginalButton.style.display = "";
+    showUnveiledButton.style.display = "none";
+  }
+
+  function update() {
+    updateControls();
+    updateFileUpload();
+    updateCanvas();
+  }
+
+  function updateControls() {
+    if (window.originalImageData) {
+      controls.style.display = "";
+
+      const header = document.querySelector("main > header") as HTMLElement;
+      const slider = document.querySelector("div.slider") as HTMLDivElement;
+      const sliderHeight = slider.getBoundingClientRect().height;
+      const sliderParentPadding = parseInt(
+        getComputedStyle(slider.parentElement!).paddingTop
+      );
+      const headerHeight = header.getBoundingClientRect().height;
+      const total = sliderHeight + sliderParentPadding + headerHeight + 10;
+
+      canvasContainer.style.height = `calc(100svh - ${total}px)`;
+    } else {
+      controls.style.display = "none";
+    }
+  }
+
+  function updateFileUpload() {
+    if (window.originalImageData) {
+      fileUpload.style.display = "none";
+    } else {
+      fileUpload.style.display = "";
+
+      const header = document.querySelector("main > header") as HTMLElement;
+      const headerHeight = header.getBoundingClientRect().height;
+      const total = headerHeight;
+
+      fileUpload.style.height = `calc(100svh - ${total}px)`;
+    }
+  }
+
+  function updateCanvas() {
+    const imageData = globalThis.originalImageData;
+    if (imageData) {
+      canvasContainer.style.display = "";
+      showOriginalButton.style.display = "";
+      showUnveiledButton.style.display = "none";
+    } else {
+      canvasContainer.style.display = "none";
+      return;
+    }
+    const ctx = globalThis.canvasContext;
+    let data = imageData.data;
+
+    let value = parseInt(slider.value);
+    // invert image when value > 255
+    if (value > 255) {
+      value = -(value - 255);
+    }
+    const kernel = [
+      [-1, -1, -1],
+      [-1, 8 + Math.abs(value), -1],
+      [-1, -1, -1],
+    ];
+    // invert image
+    if (value < 0) {
+      data = data.map((v, i) => (i % 4 === 3 ? v : 255 - v));
+    }
+    let newData = applyKernel(data, kernel);
+    if (value < 0) {
+      newData = newData.map((v, i) => (i % 4 === 3 ? v : 255 - v));
+    }
+    const newImageData = new ImageData(
+      newData,
+      imageData.width,
+      imageData.height
+    );
+
+    ctx.putImageData(newImageData, 0, 0);
+  }
+
+  function applyKernel(data: Uint8ClampedArray, kernel: number[][]) {
+    const width = canvas.width;
+    const height = canvas.height;
+
+    const kernelSize = kernel.length;
+    const kernelHalfSize = Math.floor(kernelSize / 2);
+
+    const newData = new Uint8ClampedArray(data.length);
+
+    for (let i = 0; i < data.length; i += 4) {
+      const x = (i / 4) % width;
+      const y = Math.floor(i / 4 / width);
+
+      let r = 0;
+      let g = 0;
+      let b = 0;
+
+      for (let ky = 0; ky < kernelSize; ky++) {
+        for (let kx = 0; kx < kernelSize; kx++) {
+          const pixelX = x + kx - kernelHalfSize;
+          const pixelY = y + ky - kernelHalfSize;
+
+          if (pixelX < 0 || pixelX >= width || pixelY < 0 || pixelY >= height) {
+            continue;
+          }
+
+          const pixelIndex = (pixelY * width + pixelX) * 4;
+
+          r += data[pixelIndex] * kernel[ky][kx];
+          g += data[pixelIndex + 1] * kernel[ky][kx];
+          b += data[pixelIndex + 2] * kernel[ky][kx];
+        }
+      }
+
+      newData[i] = r;
+      newData[i + 1] = g;
+      newData[i + 2] = b;
+      newData[i + 3] = data[i + 3];
+    }
+
+    return newData;
+  }
+</script>
+
+<style
+  lang="scss"
+  define:vars={{
+    lightLightShadowColor,
+    darkLightShadowColor,
+
+    lightDarkShadowColor,
+    darkDarkShadowColor,
+  }}
+>
+  main {
+    --buttonSize: 80px;
+    --buttonBorderRadius: calc(var(--buttonSize) / 2);
+
+    --shadowOffset: calc(var(--buttonSize) / 25);
+    --blurRadius: calc(var(--shadowOffset) * 2);
+
+    --darkShadowColor: var(--darkLightShadowColor);
+    --lightShadowColor: var(--lightLightShadowColor);
+
+    @media (prefers-color-scheme: dark) {
+      --darkShadowColor: var(--darkDarkShadowColor);
+      --lightShadowColor: var(--lightDarkShadowColor);
+    }
+
+    margin: auto;
+
+    & > header {
+      padding: 20px;
+
+      & > :global(svg) {
+        display: block;
+        width: 120px;
+        height: auto;
+        margin: auto;
+      }
+    }
+  }
+</style>
