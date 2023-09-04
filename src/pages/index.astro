@@ -222,6 +222,15 @@ const colors = {
     let data = imageData.data;
 
     let value = parseInt(slider.value);
+    // show original image when value === 0
+    if (value === 0) {
+      const imageData = globalThis.originalImageData;
+      if (!imageData) {
+        return;
+      }
+      ctx.putImageData(imageData, 0, 0);
+      return;
+    }
     // invert image when value > 255
     if (value > 255) {
       value = -(value - 255);

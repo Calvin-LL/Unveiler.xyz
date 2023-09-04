@@ -1,6 +1,6 @@
 ---
-import { colorLuminance } from "../helpers";
 import cryptoRandomString from "crypto-random-string";
+import { colorLuminance } from "../helpers";
 
 interface Props {
   label: string;
@@ -70,14 +70,6 @@ const lightDarkThumbGradientColor = colorLuminance(darkThumbGradientColor, 0.5);
   <div class="top">
     <div class="top">
       <label id={labelId}>{label}</label>
-      <input
-        type="number"
-        aria-labelledby={labelId}
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-      />
     </div>
     <div class="subtitle">{subLabel}</div>
   </div>
@@ -90,40 +82,6 @@ const lightDarkThumbGradientColor = colorLuminance(darkThumbGradientColor, 0.5);
     value={value}
   />
 </div>
-
-<script>
-  const sliders = document.getElementsByClassName("slider");
-
-  for (const slider of sliders) {
-    const sliderInput = slider.querySelector(
-      "input[type='range']"
-    ) as HTMLInputElement;
-    const numberInput = slider.querySelector(
-      "input[type='number']"
-    ) as HTMLInputElement;
-
-    numberInput.addEventListener("blur", () => {
-      if (numberInput.value !== sliderInput.value) {
-        numberInput.value = sliderInput.value;
-        numberInput.dispatchEvent(new Event("change"));
-      }
-    });
-
-    numberInput.addEventListener("input", () => {
-      if (numberInput.value !== sliderInput.value) {
-        sliderInput.value = numberInput.value;
-        sliderInput.dispatchEvent(new Event("change"));
-      }
-    });
-
-    sliderInput.addEventListener("input", () => {
-      if (numberInput.value !== sliderInput.value) {
-        numberInput.value = sliderInput.value;
-        numberInput.dispatchEvent(new Event("change"));
-      }
-    });
-  }
-</script>
 
 <style
   lang="scss"
@@ -149,7 +107,7 @@ const lightDarkThumbGradientColor = colorLuminance(darkThumbGradientColor, 0.5);
 
       .top {
         display: flex;
-        justify-content: space-between;
+        justify-content: flex-start;
         align-items: center;
 
         & > label {
