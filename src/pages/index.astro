@@ -63,6 +63,9 @@ const colors = {
 </Layout>
 
 <script>
+  const logoSvg = document.querySelector(
+    "main > header > svg"
+  ) as SVGSVGElement;
   const controls = document.querySelector("#controls") as HTMLDivElement;
   const fileUpload = document.querySelector("#file-upload") as HTMLDivElement;
   const upload = fileUpload.querySelector(
@@ -142,7 +145,11 @@ const colors = {
     clearTimeout(touchStartDelayTimeout);
   });
 
-  function showOriginal() {
+  function showOriginal(event?: MouseEvent) {
+    if (event?.button !== 0) {
+      return;
+    }
+
     if (showOriginalButton.style.display === "none") {
       return;
     }
@@ -153,6 +160,7 @@ const colors = {
       return;
     }
     ctx.putImageData(imageData, 0, 0);
+    drawWatermark();
 
     showOriginalButton.style.display = "none";
     showUnveiledButton.style.display = "";
@@ -173,6 +181,7 @@ const colors = {
     updateControls();
     updateFileUpload();
     updateCanvas();
+    drawWatermark();
   }
 
   function updateControls() {
@@ -207,6 +216,11 @@ const colors = {
       fileUpload.style.height = `calc(100svh - ${total}px)`;
     }
   }
+
+  const logoSvgImg = document.createElement("img");
+  logoSvgImg.src =
+    "data:image/svg+xml," +
+    encodeURIComponent(new XMLSerializer().serializeToString(logoSvg));
 
   function updateCanvas() {
     const imageData = globalThis.originalImageData;
@@ -255,6 +269,30 @@ const colors = {
     );
 
     ctx.putImageData(newImageData, 0, 0);
+  }
+
+  function drawWatermark() {
+    const ctx = globalThis.canvasContext;
+    const imageData = globalThis.originalImageData;
+    if (!imageData) {
+      return;
+    }
+
+    const watermarkWidth = imageData.width * 0.1;
+    const watermarkHeight =
+      watermarkWidth * (logoSvgImg.height / logoSvgImg.width);
+    const watermarkX = imageData.width - watermarkWidth - 10;
+    const watermarkY = imageData.height - watermarkHeight - 10;
+
+    ctx.globalAlpha = 0.5;
+    ctx.drawImage(
+      logoSvgImg,
+      watermarkX,
+      watermarkY,
+      watermarkWidth,
+      watermarkHeight
+    );
+    ctx.globalAlpha = 1.0;
   }
 
   function applyKernel(data: Uint8ClampedArray, kernel: number[][]) {
