@@ -22,7 +22,7 @@ const {
   value,
   class: className,
 } = Astro.props;
-const id = cryptoRandomString({ length: 4, type: "alphanumeric" });
+const id = "a" + cryptoRandomString({ length: 4, type: "alphanumeric" });
 const labelId = `${id}-label`;
 
 const lightThumbShadowColor = "#e4f6fe";
