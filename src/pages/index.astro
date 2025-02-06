@@ -75,6 +75,9 @@ const colors = {
     "#canvas-container"
   ) as HTMLDivElement;
   const canvas = canvasContainer.querySelector("canvas") as HTMLCanvasElement;
+  const overlayCanvas = canvasContainer.querySelector(
+    "canvas.overlay"
+  ) as HTMLCanvasElement;
   const slider = controls.querySelector(
     "div.slider > input[type='range']"
   ) as HTMLInputElement;
@@ -87,15 +90,23 @@ const colors = {
 
   showUnveiledButton.style.display = "none";
 
-  upload.addEventListener("change", async (e) => {
-    const file = (e.target as HTMLInputElement).files?.[0]!;
-    const bitmap = await createImageBitmap(file);
+  async function onFileUploadChange(
+    image: Parameters<typeof createImageBitmap>[0]
+  ) {
+    const bitmap = await createImageBitmap(image);
 
     canvas.width = bitmap.width;
     canvas.height = bitmap.height;
 
+    overlayCanvas.width = bitmap.width;
+    overlayCanvas.height = bitmap.height;
+
     const ctx = canvas.getContext("2d")!;
     ctx.drawImage(bitmap, 0, 0);
+
+    const overlayCtx = overlayCanvas.getContext("2d")!;
+    overlayCtx.drawImage(bitmap, 0, 0);
+    overlayCanvas.classList.add("fade-out");
 
     globalThis.canvasContext = ctx;
     globalThis.originalImageData = ctx.getImageData(
@@ -106,6 +117,19 @@ const colors = {
     );
 
     update();
+  }
+
+  upload.addEventListener("change", async (e) => {
+    const file = (e.target as HTMLInputElement).files?.[0]!;
+
+    onFileUploadChange(file);
+  });
+
+  fileUpload.querySelectorAll(".demo-images > button").forEach((button) => {
+    button.addEventListener("click", (e) => {
+      const img = button.querySelector("img")!;
+      onFileUploadChange(img);
+    });
   });
 
   let sliderInputTimeout: NodeJS.Timeout;
@@ -146,7 +170,7 @@ const colors = {
   });
 
   function showOriginal(event?: MouseEvent) {
-    if (event?.button !== 0) {
+    if (event && event.button !== 0) {
       return;
     }
 
@@ -195,7 +219,15 @@ const colors = {
         getComputedStyle(slider.parentElement!).paddingTop
       );
       const headerHeight = header.getBoundingClientRect().height;
-      const total = sliderHeight + sliderParentPadding + headerHeight + 10;
+      const visibilityButtonHeight =
+        showOriginalButton.getBoundingClientRect().height ||
+        showUnveiledButton.getBoundingClientRect().height;
+      const total =
+        sliderHeight +
+        sliderParentPadding +
+        headerHeight +
+        20 +
+        visibilityButtonHeight / 2;
 
       canvasContainer.style.height = `calc(100svh - ${total}px)`;
     } else {
@@ -271,6 +303,28 @@ const colors = {
     ctx.putImageData(newImageData, 0, 0);
   }
 
+  function getImageCanvasPixelRatio() {
+    const imageData = globalThis.originalImageData;
+    if (!imageData) {
+      return 1;
+    }
+    const canvasRect = canvas.getBoundingClientRect();
+    const canvasWidth = canvasRect.width;
+    const canvasHeight = canvasRect.height;
+    const imageWidth = imageData.width;
+    const imageHeight = imageData.height;
+
+    // cavas uses object-fit: contain
+    const imageRatio = imageWidth / imageHeight;
+    const canvasRatio = canvasWidth / canvasHeight;
+
+    if (imageRatio > canvasRatio) {
+      return canvasWidth / imageWidth;
+    } else {
+      return canvasHeight / imageHeight;
+    }
+  }
+
   function drawWatermark() {
     const ctx = globalThis.canvasContext;
     const imageData = globalThis.originalImageData;
@@ -278,11 +332,19 @@ const colors = {
       return;
     }
 
-    const watermarkWidth = imageData.width * 0.1;
+    const watermarkWidthFraction = 0.3;
+    const paddingWidthFraction = 0.02;
+    const controlWidth = controls.getBoundingClientRect().width;
+    const watermarkCssPixelWidth = controlWidth * watermarkWidthFraction;
+    const imageCanvasPixelRatio = getImageCanvasPixelRatio();
+    const paddingWidth =
+      (controlWidth * paddingWidthFraction) / imageCanvasPixelRatio;
+
+    const watermarkWidth = watermarkCssPixelWidth / imageCanvasPixelRatio;
     const watermarkHeight =
       watermarkWidth * (logoSvgImg.height / logoSvgImg.width);
-    const watermarkX = imageData.width - watermarkWidth - 10;
-    const watermarkY = imageData.height - watermarkHeight - 10;
+    const watermarkX = imageData.width - watermarkWidth - paddingWidth;
+    const watermarkY = imageData.height - watermarkHeight - paddingWidth;
 
     ctx.globalAlpha = 0.5;
     ctx.drawImage(
