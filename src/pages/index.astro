@@ -104,10 +104,6 @@ const colors = {
     const ctx = canvas.getContext("2d")!;
     ctx.drawImage(bitmap, 0, 0);
 
-    const overlayCtx = overlayCanvas.getContext("2d")!;
-    overlayCtx.drawImage(bitmap, 0, 0);
-    overlayCanvas.classList.add("fade-out");
-
     globalThis.canvasContext = ctx;
     globalThis.originalImageData = ctx.getImageData(
       0,
@@ -116,7 +112,13 @@ const colors = {
       canvas.height
     );
 
+    const overlayCtx = overlayCanvas.getContext("2d")!;
+    overlayCtx.drawImage(bitmap, 0, 0);
+    overlayCanvas.classList.add("fade-out");
+
     update();
+
+    drawWatermark(overlayCtx);
   }
 
   upload.addEventListener("change", async (e) => {
@@ -249,11 +251,6 @@ const colors = {
     }
   }
 
-  const logoSvgImg = document.createElement("img");
-  logoSvgImg.src =
-    "data:image/svg+xml," +
-    encodeURIComponent(new XMLSerializer().serializeToString(logoSvg));
-
   function updateCanvas() {
     const imageData = globalThis.originalImageData;
     if (imageData) {
@@ -325,8 +322,13 @@ const colors = {
     }
   }
 
-  function drawWatermark() {
-    const ctx = globalThis.canvasContext;
+  const logoSvgImg = document.createElement("img");
+  logoSvgImg.src =
+    "data:image/svg+xml," +
+    encodeURIComponent(new XMLSerializer().serializeToString(logoSvg));
+  let logoCanvas: HTMLCanvasElement;
+
+  async function drawWatermark(ctx = globalThis.canvasContext) {
     const imageData = globalThis.originalImageData;
     if (!imageData) {
       return;
@@ -346,15 +348,23 @@ const colors = {
     const watermarkX = imageData.width - watermarkWidth - paddingWidth;
     const watermarkY = imageData.height - watermarkHeight - paddingWidth;
 
-    ctx.globalAlpha = 0.5;
-    ctx.drawImage(
-      logoSvgImg,
-      watermarkX,
-      watermarkY,
-      watermarkWidth,
-      watermarkHeight
-    );
-    ctx.globalAlpha = 1.0;
+    if (!logoCanvas) {
+      logoCanvas = document.createElement("canvas");
+      const logoCtx = logoCanvas.getContext("2d")!;
+      logoCanvas.width = imageData.width;
+      logoCanvas.height = imageData.height;
+
+      logoCtx.globalAlpha = 0.5;
+      logoCtx.drawImage(
+        logoSvgImg,
+        watermarkX,
+        watermarkY,
+        watermarkWidth,
+        watermarkHeight
+      );
+    }
+
+    ctx.drawImage(logoCanvas, 0, 0);
   }
 
   function applyKernel(data: Uint8ClampedArray, kernel: number[][]) {
