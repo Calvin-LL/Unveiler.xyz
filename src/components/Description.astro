@@ -1,56 +1,11 @@
 ---
-import assert from "node:assert";
 import darkCorrect from "../assets/correct/dark.png";
 import lightCorrect from "../assets/correct/light.png";
 import darkResult from "../assets/examples/dark-result.png";
 import darkExample from "../assets/examples/dark.png";
 import lightResult from "../assets/examples/light-result.png";
 import lightExample from "../assets/examples/light.png";
-import { getImage2 } from "../helpers";
-
-const {
-  src: darkSrc,
-  attributes: darkAttributes,
-  aspectRatio: darkAspectRatio,
-} = await getImage2({
-  src: darkExample,
-});
-const {
-  src: lightSrc,
-  attributes: lightAttributes,
-  aspectRatio: lightAspectRatio,
-} = await getImage2({
-  src: lightExample,
-});
-const {
-  src: darkResultSrc,
-  attributes: darkResultAttributes,
-  aspectRatio: darkResultAspectRatio,
-} = await getImage2({ src: darkResult });
-const {
-  src: lightResultSrc,
-  attributes: lightResultAttributes,
-  aspectRatio: lightResultAspectRatio,
-} = await getImage2({ src: lightResult });
-
-assert.deepStrictEqual(lightAttributes, darkAttributes);
-assert.deepStrictEqual(lightResultAttributes, darkResultAttributes);
-assert.strictEqual(lightAspectRatio, darkAspectRatio);
-assert.strictEqual(lightResultAspectRatio, darkResultAspectRatio);
-
-const {
-  src: darkCorrectSrc,
-  attributes: darkCorrectAttributes,
-  aspectRatio: darkCorrectAspectRatio,
-} = await getImage2({ src: darkCorrect });
-const {
-  src: lightCorrectSrc,
-  attributes: lightCorrectAttributes,
-  aspectRatio: lightCorrectAspectRatio,
-} = await getImage2({ src: lightCorrect });
-
-assert.deepStrictEqual(lightCorrectAttributes, darkCorrectAttributes);
-assert.strictEqual(lightCorrectAspectRatio, darkCorrectAspectRatio);
+import LightDarkPicture from "./LightDarkPicture.astro";
 ---
 
 <div class="description">
@@ -62,36 +17,31 @@ assert.strictEqual(lightCorrectAspectRatio, darkCorrectAspectRatio);
   </p>
 
   <div class="side-by-side">
-    <picture>
-      <source srcset={darkSrc} media="(prefers-color-scheme: dark)" />
-      <img
-        src={lightSrc}
-        style={{ aspectRatio: lightAspectRatio }}
-        {...lightAttributes}
-      />
-    </picture>
+    <LightDarkPicture
+      lightSrc={lightExample}
+      darkSrc={darkExample}
+      type="image/png"
+      alt="Example of a screenshot with blacked out text"
+    />
      ➡️
-    <picture>
-      <source srcset={darkResultSrc} media="(prefers-color-scheme: dark)" />
-      <img
-        src={lightResultSrc}
-        style={{ aspectRatio: lightResultAspectRatio }}
-        {...lightResultAttributes}
-      />
-    </picture>
+    <LightDarkPicture
+      lightSrc={lightResult}
+      darkSrc={darkResult}
+      type="image/png"
+      alt="Example of a screenshot with blacked out text revealed"
+    />
   </div>
 
   <h2>How do I censor text properly?</h2>
   <p>Use the pen tool instead.</p>
   <div class="side-by-side">
-    <picture class="small">
-      <source srcset={darkCorrectSrc} media="(prefers-color-scheme: dark)" />
-      <img
-        src={lightCorrectSrc}
-        style={{ aspectRatio: lightCorrectAspectRatio }}
-        {...lightCorrectAttributes}
-      />
-    </picture>
+    <LightDarkPicture
+      lightSrc={lightCorrect}
+      darkSrc={darkCorrect}
+      type="image/png"
+      alt="A screenshot of the markup tool with the pen tool selected and highlighted"
+      class="small"
+    />
   </div>
   <p>
     Or use <a

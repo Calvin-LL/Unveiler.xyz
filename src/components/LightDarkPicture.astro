@@ -1,0 +1,56 @@
+---
+import { getImage } from "astro:assets";
+
+interface Props {
+  lightSrc: ImageMetadata;
+  darkSrc: ImageMetadata;
+  widths?: number[];
+  alt: string;
+  type: string;
+  [key: string]: any;
+}
+
+const DEFAULT_IMAGE_WIDTHS = [
+  128, 256, 384, 640, 750, 828, 1080, 1200, 1920, 2048, 3840,
+];
+
+const {
+  lightSrc,
+  darkSrc,
+  alt,
+  widths = DEFAULT_IMAGE_WIDTHS,
+  ...props
+} = Astro.props as Props;
+
+const lightImageResult = await getImage({
+  src: lightSrc,
+  format: "avif",
+  widths: widths.filter((width) => width <= lightSrc.width),
+  quality: 90,
+});
+const darkImageResult = await getImage({
+  src: darkSrc,
+  format: "avif",
+  widths: widths.filter((width) => width <= darkSrc.width),
+  quality: 90,
+});
+---
+
+<picture>
+  <source
+    srcset={darkImageResult.srcSet.attribute}
+    media="(prefers-color-scheme: dark)"
+    type="image/avif"
+  />
+  <source srcset={lightImageResult.srcSet.attribute} type="image/avif" />
+  <img
+    src={lightSrc.src}
+    sizes="auto"
+    alt={alt}
+    loading="lazy"
+    decoding="async"
+    width={lightSrc.width}
+    height={lightSrc.height}
+    {...props}
+  />
+</picture>

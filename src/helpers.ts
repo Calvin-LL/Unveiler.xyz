@@ -1,4 +1,3 @@
-import { getImage } from "astro:assets";
 import assert from "node:assert";
 import type { HexColor } from "./types/CssColor";
 
@@ -32,12 +31,4 @@ export function colorLuminance(hex: HexColor, lum: number): HexColor {
   }
 
   return rgb;
-}
-
-export async function getImage2(props: Parameters<typeof getImage>[0]) {
-  const {
-    src,
-    attributes: { width, height, ...attributes },
-  } = await getImage(props);
-  return { src, attributes, aspectRatio: width / height };
 }
