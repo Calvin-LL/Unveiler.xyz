@@ -102,6 +102,10 @@ const lightDarkThumbGradientColor = colorLuminance(darkThumbGradientColor, 0.5);
 
     width: 100%;
 
+    input {
+      touch-action: manipulation;
+    }
+
     & > .top {
       margin-bottom: calc(var(--buttonSize) / 8);
 
@@ -113,10 +117,6 @@ const lightDarkThumbGradientColor = colorLuminance(darkThumbGradientColor, 0.5);
         & > label {
           font-size: var(--fontSize);
           font-weight: 500;
-        }
-
-        & > input {
-          touch-action: manipulation;
         }
 
         & > input[type="number"] {
