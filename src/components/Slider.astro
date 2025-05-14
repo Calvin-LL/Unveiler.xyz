@@ -115,6 +115,10 @@ const lightDarkThumbGradientColor = colorLuminance(darkThumbGradientColor, 0.5);
           font-weight: 500;
         }
 
+        & > input {
+          touch-action: manipulation;
+        }
+
         & > input[type="number"] {
           --fontSize: calc(var(--buttonSize) / 6);
           --height: calc(var(--fontSize) * 2.2);
