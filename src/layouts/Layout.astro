@@ -86,7 +86,7 @@ const backgroundColorStyleString = `
 
     <title>{title}</title>
 
-    <Posthog />
+    {import.meta.env.PROD ? <Posthog /> : undefined}
   </head>
   <body ontouchstart="">
     <slot />
