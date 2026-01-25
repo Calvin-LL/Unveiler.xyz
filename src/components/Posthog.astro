@@ -1,0 +1,19 @@
+<script>
+  import posthog from "posthog-js";
+
+  const OG_HOST = "https://us.i.posthog.com";
+  const PROXY_HOST = "https://t.calvin.sh";
+
+  let apiHost = OG_HOST;
+  try {
+    await fetch(apiHost, { method: "HEAD", mode: "no-cors" });
+  } catch (error) {
+    apiHost = PROXY_HOST;
+  }
+
+  posthog.init("phc_rgC7TJ4yQcllYnWJdqRgqGwqznmm0OCMGAkepvnxPtj", {
+    api_host: apiHost,
+    ui_host: OG_HOST,
+    defaults: "2025-11-30",
+  });
+</script>

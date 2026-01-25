@@ -1,4 +1,5 @@
 ---
+import Posthog from "../components/Posthog.astro";
 import type { HexColor } from "../types/CssColor";
 
 interface Props {
@@ -84,6 +85,8 @@ const backgroundColorStyleString = `
     <link rel="manifest" href="/site.webmanifest" />
 
     <title>{title}</title>
+
+    <Posthog />
   </head>
   <body ontouchstart="">
     <slot />
