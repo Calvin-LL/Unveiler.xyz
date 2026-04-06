@@ -5,7 +5,13 @@
 
     let apiHost = OG_HOST;
     try {
-      await fetch(apiHost, { method: "HEAD", mode: "no-cors" });
+      const response = await fetch(apiHost, {
+        method: "HEAD",
+        mode: "no-cors",
+      });
+      if (response.status >= 400) {
+        throw new Error("API host is not reachable");
+      }
     } catch (error) {
       apiHost = PROXY_HOST;
     }
