@@ -93,7 +93,16 @@ const colors = {
   async function onFileUploadChange(
     image: Parameters<typeof createImageBitmap>[0]
   ) {
-    const bitmap = await createImageBitmap(image);
+    let bitmap: ImageBitmap;
+    try {
+      bitmap = await createImageBitmap(image);
+    } catch {
+      // The browser can't decode some formats (HEIC on Android, for one).
+      alert(
+        "This image couldn't be opened. Try a PNG or JPEG screenshot instead."
+      );
+      return;
+    }
 
     canvas.width = bitmap.width;
     canvas.height = bitmap.height;
@@ -121,8 +130,12 @@ const colors = {
     drawWatermark(overlayCtx);
   }
 
-  upload.addEventListener("change", async (e) => {
-    const file = (e.target as HTMLInputElement).files?.[0]!;
+  upload.addEventListener("change", async () => {
+    const file = upload.files?.[0];
+    // Cleared so picking the same file again, say after a failed decode,
+    // still fires `change`.
+    upload.value = "";
+    if (!file) return;
 
     onFileUploadChange(file);
   });
